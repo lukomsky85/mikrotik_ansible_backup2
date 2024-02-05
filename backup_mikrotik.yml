@@ -1,0 +1,19 @@
+---
+- name: backup
+  hosts: routers
+#  vars:
+ #   backup_dir: "/home/addansible/mikrotik_backup/backup"
+  gather_facts: false
+  tasks:
+    - name: backup-file create
+      routeros_command:
+#        commands: "/system backup save dont-encrypt=yes name={{ file_name }}"
+        commands: "/system backup save password=_dN4eS4oit encryption=aes-sha256 name={{ file_name }}"
+    - name: backup-resource create
+      routeros_command:
+        commands: /export file={{ file_name }}
+    - name: backup-file download
+      ansible.netcommon.net_get:
+        src: "{{ file_name }}.backup"
+        dest: /home/addansible/mikrotik_backup/backup/{{ file_name }}_{{ lookup('pipe', 'date +%Y-%m-%d@%H:%M:%S')>
+        protocol: sftp
